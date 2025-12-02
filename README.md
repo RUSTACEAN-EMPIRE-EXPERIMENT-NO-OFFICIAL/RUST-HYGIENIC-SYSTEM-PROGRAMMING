@@ -1,80 +1,166 @@
-# RUST-HYGIENIC-SYSTEM-PROGRAMMING
+📌 RUST-HYGIENIC-SYSTEM-PROGRAMMING (RPU 64B ARCH MODEL)
 
-Experimental hygienic system-programming model for Rust.  
-Core concept is a single unified construct: **SAFE**.
 
-SAFE =  
-**assert replacement + unified try/catch + hygiene enforcement + meta-programming + full pointer ban (-pointer)**.
+— Final README.md (Complete Integrated Spec) —
 
----
 
-## SAFE: Unified Hygienic Execution
+# RUST-HYGIENIC-SYSTEM-PROGRAMMING  
+Integrated with **RPU 64-Byte Architecture**
 
-`SAFE` is the central construct of this model.
-
-- replaces assert  
-- integrates try/catch  
-- enforces hygiene rules  
-- supports meta-programming  
-- **raw pointers, reference pointers, and any address-based access are forbidden (-pointer)**  
-- any violation triggers an immediate *hygienic fault*
-
-SAFE blocks must remain strictly hygienic.
+A fully experimental hygienic system-programming model.  
+Core constructs: **SAFE**, **FAST**, **SECURE**  
+and the hardware model: **RPU (Rust Processing Unit)** with a **64-byte architecture**.
 
 ---
 
-## Core Rules
+## Core Concepts
 
-- **-pointer** : any pointer-like access = fault  
-- no undefined behavior  
-- no hidden exception flows  
-- block-level hygiene guarantees  
-- meta rules can rewrite AST before execution
+### SAFE
+Unified hygienic execution.
+
+- assert replacement  
+- try/catch replacement  
+- hygiene rules enforced  
+- meta-programmable  
+- **pointer-free model (-pointer)**  
+- hygiene fault on any violation  
+
+### FAST
+Deterministic fast-path execution.
+
+- must follow SAFE rules  
+- predictable, fixed-cycle path  
+- optimized for block-aligned operations  
+- meta rules for performance shaping  
+- 64B I/O only  
+
+### SECURE
+Integrity and access enforcement.
+
+- enforces verified state transitions  
+- guards against illegal access  
+- integrity-tag validation (per 64B)  
+- meta rules for security hardening  
 
 ---
 
-## Basic Form
+## RPU Architecture (Register-less Core)
+
+RPU is an execution engine with **no internal registers**.  
+State lives outside RPU:
+
+
+
+
+[ External Register System ]
+├─ INT-Register-File (64B slots)
+└─ FP-Register-File  (64B slots)
+
+
+
+RPU interacts only through SAFE/FAST/SECURE rules.
+
+---
+
+## 64-Byte Architecture
+
+Everything operates on **64-byte units**.
+
+- external registers = 64B  
+- DMA cache line = 64B  
+- SAFE verification unit = 64B  
+- SECURE integrity tag = per 64B  
+- FAST path I/O = 64B aligned  
+- memory access = `BlockID + Offset(0..63)` (no pointers)  
+
+### INT Register Slot (64B)
+- 8 × u64  
+- 16 × u32  
+- 32 × u16  
+- 64 × u8  
+
+### FP Register Slot (64B)
+- 8 × f64  
+- 16 × f32  
+- 32 × f16  
+
+INT ↔ FP cross-use = **hygiene fault**.  
+Only SAFE-cast allowed.
+
+---
+
+## DMA + Cache System
+
+DMA serves as the **memory gateway** for RPU.
+
+- cache line = **64B**  
+- INT-only / FP-only lines (no mixing)  
+- FAST path uses DMA cache directly  
+- SECURE checks integrity tags per 64B  
+- scatter-gather allowed only on 64B boundaries  
+
+---
+
+## Execution Pipeline
+
+
+
+
+
+
+SAFE-VERIFY (64B)
+
+
+SECURE-GUARD (integrity check)
+
+
+FAST-EXEC (deterministic path)
+
+
+DMA-FEED (64B burst)
+
+
+COMMIT (secure re-verify)
+
+
+
+
+
+RPU executes **only verified blocks**.
+
+---
+
+## Example Composition
 
 ```rust
 SAFE {
-    run();
+    SECURE {
+        FAST {
+            step();
+        }
+    }
 }
 
 
 
-pointer usage or hygiene violation → immediate fault.
+
+
+SAFE: hygiene
+
+
+SECURE: integrity
+
+
+FAST: speed
 
 
 
-Conditional SAFE
 
-
-SAFE x > 0 {
-    use(x);
-}
+All operating on 64-byte aligned blocks.
 
 
 
-condition mismatch → fault.
-
-
-
-Meta-Aware SAFE
-
-
-SAFE(auto_clean, no_ptr, expand_checks) {
-    process();
-}
-
-
-
-meta rules inspect and rewrite the AST
-
-and eliminate unsafe or non-hygienic patterns.
-
-
-
-Hygienic Fault Types
+Fault Model
 
 
 
@@ -85,31 +171,91 @@ POINTER_USE
 NULL_ACCESS
 
 
+TYPE_MISMATCH
+
+
+ALIGN64_FAULT
+
+
 OUT_OF_RANGE
 
 
 UNVERIFIED_STATE
 
 
-HYGIENE_RULE_VIOLATION
+FASTPATH_VIOLATION
+
+
+SECURITY_FAULT
+
+
+DMA_FAULT
 
 
 
 
-All faults are handled directly by SAFE.
+
+ISA Sketch (64B-Oriented)
+
+
+LD64B.INT   rI, BID, off
+LD64B.FP    rF, BID, off
+ST64B.INT   BID, off, rI
+ST64B.FP    BID, off, rF
+
+SAFECHK     BID, type
+SECTAGV     BID, tag
+FASTENQ     qid, r?
+
+CAST64B     rF, rI, mode
+ZERO64B     rI
+
+FAULT       code
 
 
 
-Goal
+INT/FP register slots are external 64B units referenced by handles.
 
 
-A Rust-based experimental model exploring
 
-pointer elimination (-pointer), full hygiene, and predictable system-level execution.
+Summary
 
 
-One construct governs the entire discipline: SAFE.
+This model combines:
+
+
+
+
+Hygiene (SAFE)
+
+
+Speed (FAST)
+
+
+Security (SECURE)
+
+
+Pointer-free execution (-pointer)
+
+
+External register architecture (INT/FP split)
+
+
+DMA-backed memory gateway
+
+
+Unified 64-byte operation model
+
+
+RPU as a pure execution engine without internal registers
+
+
+
+
+A new direction for system-level programming languages and hardware co-design.
 
 
 
 ---
+
+
