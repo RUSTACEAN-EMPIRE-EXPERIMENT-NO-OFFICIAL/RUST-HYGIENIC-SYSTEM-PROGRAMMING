@@ -1,1 +1,3 @@
 # RUST-HYGIENIC-SYSTEM-PROGRAMMING
+
+use "safe" keyword 
